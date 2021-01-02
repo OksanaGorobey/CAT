@@ -1,0 +1,12 @@
+variables:
+  IMAGE_NAME: cat-runtests
+
+stages:
+  - test
+
+run_tests:
+  stage: test
+  only:
+    - master
+  script:
+    - docker run --rm $IMAGE_NAME:latest

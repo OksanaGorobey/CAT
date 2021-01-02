@@ -1,0 +1,51 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+'use strict';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const ajv                   = ( require('ajv') )( { allErrors: true, jsonPointers: true } );
+const ajv_errors            = require('ajv-errors')( ajv );
+const ajv_keywords          = require('ajv-keywords')( ajv );
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ajv.addSchema( require( __base + 'src/validate/schemas/custom.filters.js' ) );
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const customValidator                         = {};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Валідація параметрів запиту. В разі помилки генерує виключення з масивом помилок
+ *
+ * @param params
+ * @param validate_schema
+ */
+customValidator.validateRequestParams              = ( params, validate_schema ) =>
+{
+    if( ! ajv.validate( validate_schema, params )  )
+    {
+        const error_codes = ajv.errors
+            .map(
+                ( err ) =>
+                {
+                    return parseInt( ( err.message || consts.GENERAL_CODE_VALIDATE_PARAMS_ERROR ).toString().replace( /[^0-9]/g, '' ) )
+                }
+            )
+            .filter( x => x )                                   // видаляємо пусті значення
+            .filter( ( v, i, a ) => a.indexOf( v ) === i );     // видаляємо неунікальні елементи
+
+        throw new ErrorsException( error_codes );
+    }
+
+    return true;    // валідація пройшла успішно
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+module.exports = customValidator;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
